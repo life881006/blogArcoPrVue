@@ -11,13 +11,13 @@
       @submit="handleSubmit"
     >
       <a-form-item
-        field="username"
+        field="loginName"
         :rules="[{ required: true, message: $t('login.form.userName.errMsg') }]"
         :validate-trigger="['change', 'blur']"
         hide-label
       >
         <a-input
-          v-model="userInfo.username"
+          v-model="userInfo.loginName"
           :placeholder="$t('login.form.userName.placeholder')"
         >
           <template #prefix>
@@ -50,16 +50,35 @@
           >
             {{ $t('login.form.rememberPassword') }}
           </a-checkbox>
-          <a-link>{{ $t('login.form.forgetPassword') }}</a-link>
+          <a-link @click="forgetPassword">{{
+            $t('login.form.forgetPassword')
+          }}</a-link>
         </div>
         <a-button type="primary" html-type="submit" long :loading="loading">
           {{ $t('login.form.login') }}
         </a-button>
-        <a-button type="text" long class="login-form-register-btn">
+        <a-button
+          type="text"
+          long
+          class="login-form-register-btn"
+          @click="openRegister"
+        >
           {{ $t('login.form.register') }}
         </a-button>
       </a-space>
     </a-form>
+  </div>
+
+  <div>
+    <a-modal
+      v-model:visible="isOpenRegister"
+      draggable
+      :footer="false"
+      :title="$t('login.form.register')"
+      @cancel="isOpenRegister = !isOpenRegister"
+    >
+      <register ref="registRef" @registed="registed"></register>
+    </a-modal>
   </div>
 </template>
 
@@ -73,20 +92,23 @@
   import { useUserStore } from '@/store';
   import useLoading from '@/hooks/loading';
   import type { LoginData } from '@/api/user';
+  import register from './regist-form.vue';
 
   const router = useRouter();
   const { t } = useI18n();
   const errorMessage = ref('');
   const { loading, setLoading } = useLoading();
   const userStore = useUserStore();
+  const isOpenRegister = ref(false);
+  const registRef = ref();
 
   const loginConfig = useStorage('login-config', {
     rememberPassword: true,
-    username: 'admin', // 演示默认值
-    password: 'admin', // demo default value
+    loginName: '1231', // 演示默认值
+    password: '123456', // demo default value
   });
   const userInfo = reactive({
-    username: loginConfig.value.username,
+    loginName: loginConfig.value.loginName,
     password: loginConfig.value.password,
   });
 
@@ -111,10 +133,10 @@
         });
         Message.success(t('login.form.login.success'));
         const { rememberPassword } = loginConfig.value;
-        const { username, password } = values;
+        const { loginName, password } = values;
         // 实际生产环境需要进行加密存储。
         // The actual production environment requires encrypted storage.
-        loginConfig.value.username = rememberPassword ? username : '';
+        loginConfig.value.loginName = rememberPassword ? loginName : '';
         loginConfig.value.password = rememberPassword ? password : '';
       } catch (err) {
         errorMessage.value = (err as Error).message;
@@ -126,6 +148,35 @@
   const setRememberPassword = (value: boolean) => {
     loginConfig.value.rememberPassword = value;
   };
+
+  const forgetPassword = () => {
+    // 忘记密码
+  };
+
+  const openRegister = () => {
+    isOpenRegister.value = !isOpenRegister.value;
+  };
+
+  const registed = (loginName: string) => {
+    userInfo.loginName = loginName;
+    openRegister();
+  };
+
+  // const count = ref(0);
+  // const doubleCount = ref(0);
+  // watchEffect中定义的属性都是响应式的
+  // watchEffect((onInvalidate) => {
+  //   const timer = setTimeout(() => {
+  //     count.value += 1;
+  //   }, 1000);
+
+  //   // 组件销毁时调用WatchEffect的副作用函数，可以
+  //   onInvalidate(() => {
+  //     clearInterval(timer);
+  //   });
+
+  //   doubleCount.value = count.value + 1;
+  // });
 </script>
 
 <style lang="less" scoped>

@@ -31,11 +31,13 @@
   },
   "dependencies": {
     "@arco-design/web-vue": "^2.37.4",
+    "@types/marked": "^4.0.8",
     "@vueuse/core": "^9.3.0",
     "axios": "^0.24.0",
-    "dayjs": "^1.11.5",
+    "dayjs": "^1.11.7",
     "echarts": "^5.4.0",
     "lodash": "^4.17.21",
+    "md-editor-v3": "^2.6.0",
     "mitt": "^3.0.0",
     "nprogress": "^0.2.0",
     "pinia": "^2.0.23",
@@ -44,7 +46,8 @@
     "vue": "^3.2.40",
     "vue-echarts": "^6.2.3",
     "vue-i18n": "^9.2.2",
-    "vue-router": "^4.0.14"
+    "vue-router": "^4.0.14",
+    "xss": "^1.0.14"
   },
   "devDependencies": {
     "@commitlint/cli": "^17.1.2",

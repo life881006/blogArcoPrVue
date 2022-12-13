@@ -97,6 +97,13 @@
           if (_route) {
             _route.forEach((element) => {
               // This is demo, modify nodes as needed
+              // 隐藏菜单栏
+              if (
+                element?.meta?.requireShow !== undefined &&
+                !element?.meta?.requireShow
+              ) {
+                return;
+              }
               const icon = element?.meta?.icon
                 ? () => h(compile(`<${element?.meta?.icon}/>`))
                 : null;

@@ -2,8 +2,10 @@ import { defineStore } from 'pinia';
 import {
   login as userLogin,
   logout as userLogout,
-  getUserInfo,
+  regist,
+  checkExistUserName,
   LoginData,
+  RegistData,
 } from '@/api/user';
 import { setToken, clearToken } from '@/utils/auth';
 import { removeRouteListener } from '@/utils/route-listener';
@@ -12,21 +14,15 @@ import useAppStore from '../app';
 
 const useUserStore = defineStore('user', {
   state: (): UserState => ({
+    id: '',
     name: undefined,
-    avatar: undefined,
-    job: undefined,
-    organization: undefined,
-    location: undefined,
-    email: undefined,
-    introduction: undefined,
-    personalWebsite: undefined,
-    jobName: undefined,
-    organizationName: undefined,
-    locationName: undefined,
-    phone: undefined,
-    registrationDate: undefined,
-    accountId: undefined,
-    certification: undefined,
+    nickName: undefined,
+    photo: undefined,
+    gender: undefined,
+    birthday: undefined,
+    phoneNumber: undefined,
+    hobbies: undefined,
+    friends: [],
     role: '',
   }),
 
@@ -45,6 +41,7 @@ const useUserStore = defineStore('user', {
     },
     // Set user's information
     setInfo(partial: Partial<UserState>) {
+      partial.role = 'admin';
       this.$patch(partial);
     },
 
@@ -55,20 +52,35 @@ const useUserStore = defineStore('user', {
 
     // Get user's information
     async info() {
-      const res = await getUserInfo();
+      // const res = await getUserInfo();
+      const user = JSON.parse(window.sessionStorage.getItem('user') || '');
 
-      this.setInfo(res.data);
+      this.setInfo(user);
     },
-
-    // Login
+    // 登录
     async login(loginForm: LoginData) {
       try {
         const res = await userLogin(loginForm);
-        setToken(res.data.token);
+        const data = res?.data;
+
+        setToken(data.token);
+        window.sessionStorage.setItem('user', JSON.stringify(data));
       } catch (err) {
         clearToken();
         throw err;
       }
+    },
+    // 注册
+    async regist(registData: RegistData) {
+      const res = await regist(registData);
+
+      return res?.data;
+    },
+    // 检查注册名
+    async checkExistUserName(loginName: string) {
+      const res = await checkExistUserName(loginName);
+
+      return res.data;
     },
     logoutCallBack() {
       const appStore = useAppStore();
@@ -80,7 +92,7 @@ const useUserStore = defineStore('user', {
     // Logout
     async logout() {
       try {
-        await userLogout();
+        await userLogout(this.id);
       } finally {
         this.logoutCallBack();
       }
